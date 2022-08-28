@@ -1,6 +1,9 @@
 # Smart-contracts
+Following smart contracts are deployed on Ropsten Testnet.
+They are verified and published on the same.
 
 ## Pharma.sol
+Contract Address: 0xF7D4FA52705BF07D183c25B0F8fE48883f875f72
 ![Screenshot (7)](https://user-images.githubusercontent.com/61145586/187062271-5a93228f-be50-4767-8450-6ab9c3e068f6.png)
 ![Screenshot (8)](https://user-images.githubusercontent.com/61145586/187062272-e885d8d9-3a44-43d5-8d1e-9e6c2046f566.png)
 ![Screenshot (9)](https://user-images.githubusercontent.com/61145586/187062276-7f8bf066-192a-40b6-a624-3f282d1b06f0.png)
@@ -9,6 +12,7 @@
 
 
 ## Insurance.sol 
+Contract Address: 0xAF84F18fe1223d3d82bc728A5908F73A747CB7f7
 ![Screenshot (13)](https://user-images.githubusercontent.com/61145586/187062292-1e3bdf64-373a-4cc5-b44a-0dfb4c29bab7.png)
 ![Screenshot (14)](https://user-images.githubusercontent.com/61145586/187062293-8a8e0a81-5998-4ae8-9fe3-642e2420040c.png)
 ![Screenshot (15)](https://user-images.githubusercontent.com/61145586/187062295-1cc72cb6-0c37-4ec7-8763-05814555da80.png)
