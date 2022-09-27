@@ -1,70 +1,46 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 
-contract Marketplace is ReentrancyGuard {
+contract marketPlace { 
 
-    address payable public immutable feeAccount; 
-    uint public immutable feePercent; 
-    uint public itemCount; 
-    enum state{created,release}
-
-    struct Item {
-        uint itemId;
-        IERC721 nft;
-        uint tokenId;
+    enum State{created,release}
+    struct Item{
+        State state;
+        address seller;
+        address token;
         uint price;
-        address payable seller;
-        bool sold;
+        uint tokenId;
     }
-    // enum -> State of the nft
-    state State;
-    // mapping of Items
-    mapping(uint => Item) public items;
-
-// Events
-    event Offered(uint itemId,address indexed nft,uint tokenId,uint price,address indexed seller);
-    event Bought(uint itemId,address indexed nft,uint tokenId,uint price,address indexed seller,address indexed buyer);
-
-    constructor(uint _feePercent) {
-        feeAccount = payable(msg.sender);
-        feePercent = _feePercent;
+    uint public itemId = 0;
+    mapping(uint=>Item)public items;
+    uint public listingFee = 1 ether;
+    function listNFT(address _token,uint _tokenId,uint _price)public{
+        IERC721(_token).transferFrom(msg.sender,address(this),_tokenId);
+        Item memory item = Item(State.created,msg.sender,_token,_price,_tokenId);
+        itemId++;
+        items[_tokenId] = item;
     }
 
-    function list(IERC721 _nft, uint _tokenId, uint _price) external nonReentrant {
-        require(_price > 0, "Price must be greater than zero");
-        itemCount ++;
-        _nft.transferFrom(msg.sender, address(this), _tokenId);
-        items[itemCount] = Item (itemCount,_nft, _tokenId,_price,payable(msg.sender),false);
+    function balance(address check)public view returns(uint){
+         return(check.balance);
+     }
 
-        emit Offered(itemCount,address(_nft),_tokenId,_price,msg.sender);
-
-        State = state.created; 
-    }
-
-    function purchaseItem(uint _itemId) external payable nonReentrant {
-
-        uint _totalPrice = getTotalPrice(_itemId);
+    function buy(uint _itemId)public payable{
         Item storage item = items[_itemId];
-
-        require(_itemId > 0 && _itemId <= itemCount, "item doesn't exist");
-        require(msg.value >= _totalPrice, "not enough ether to cover item price and market fee");
-        require(!item.sold, "item already sold");
-
-        item.seller.transfer(item.price);
-        feeAccount.transfer(_totalPrice - item.price);
-        item.sold = true;
-
-        item.nft.transferFrom(address(this), msg.sender, item.tokenId);
-
-        emit Bought(_itemId,address(item.nft),item.tokenId,item.price,item.seller,msg.sender);
-        State = state.release;
+        require(msg.sender !=item.seller,"Seller cannot be buyer");
+        require(item.state == State.created,"Item is not yet created");
+        IERC721(item.token).transferFrom(address(this),msg.sender,item.tokenId);
+        payable(item.seller).transfer(item.price);
     }
 
-    function getTotalPrice(uint _itemId) view public returns(uint){
-        return((items[_itemId].price*(100 + feePercent))/100);
+    function sell(uint _itemId) public {
+        Item storage item = items[_itemId];
+        require(msg.sender == item.seller,"Seller can only release the Item");
+        require(item.state == State.created,"Items is not created");
+        item.state = State.release;
+        IERC721(item.token).transferFrom(address(this),msg.sender,item.tokenId);
     }
 }
